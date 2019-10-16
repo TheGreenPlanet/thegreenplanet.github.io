@@ -6,14 +6,14 @@ A simple tool made for reverse engineers that automatically calculates the corre
 struct
 {
 	short CurrentVaild;		//0x0000
-	char Alive;				//0x0002
+	char Alive;			//0x0002
 	char _0x0003[0x15];		//0x0003
 	Vector3 origin;			//0x0018
 	Vector3 angles;			//0x0024
 	char _0x0030[0x8];		//0x0030
-	int flags2;				//0x0038
+	int flags2;			//0x0038
 	char _0x003C[0xA0];		//0x003C
-	int number;				//0x00DC 
+	int number;			//0x00DC 
 	entityType_t eType;		//0x00E0  
 	char PlayerPose;		//0x00E4  
 	char Shooting;			//0x00E5  
