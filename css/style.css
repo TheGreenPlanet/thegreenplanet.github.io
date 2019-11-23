@@ -44,8 +44,11 @@ h4{
     position: relative;
 }
 
-.easy-wrapper{
-
+.background-settings
+{
+    background-color: #1b1b1b;
+    padding: 5px;
+    color: #d8d8d8;
 }
 
 .code-container textarea{
@@ -58,22 +61,39 @@ h4{
     border-left: 20px solid #ff9800;
     background-color: #262626;
     color: white;
+    margin-top: 5px;
+    padding: 0px;
+
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 .code-container button{
     align-items: center;
     background: #ff9800;
-    color: rgba(18,18,18,.9);
+    color: #d8d8d8;
     border: none;
     outline: none;
     padding: 4px 20px;
     border-radius: 2px;
     font-weight: bold;
-    
+}
+
+.code-container input{
+    align-items: center;
+    background: #d3d3d3;
+    /* color: #d8d8d8; */
+    border: none;
+    /* outline: none; */
+    padding: 4px 10px;
+    border-radius: 2px;
+    font-weight: normal;
+    width: 70px;
 }
 
 .code-container button:hover{
-    background: #555;
+    background: #ca7900;
 }
 /*
 .background{

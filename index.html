@@ -4,22 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" href="Hemsida/css/style.css">
+    <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
 
-    <title>Mina Appar</title>
+    <!--jQuery-->
+    <script type="text/javascript" src="js/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="js/Easy-Struct.js"></script>
+
+    <title>Min Hemsida</title>
 </head>
 <body>
-    <header>
-        <div class="nav-bar">
-            <a href="index.html"><i class="fas fa-home"></i> Home</a>
-            <a href="Hemsida/easy-struct.html"><i class="fas fa-code"></i> Easy Struct</a>
-        </div>
-    </header>
-    
     <main>
-
-
+        <div class="easy-wrapper">
+            <div class="center-content">
+                <h2>A Simple Structure Generator</h2>
+                <h4>For reverse engineering data structures and classes</h4>
+                <h4>Format: [data-type] [member-name][optional-array-size] [memory-location-in-hex]</h4>
+                
+                <div class="code-container">
+                    <div class="background-settings">
+                        <button id="button-bit-switch" onmousedown="toggle(this, '32-bit', '64-bit')">32-bit</button>
+                        Struct name: <input type="text" name="struct-name" value="">
+                        Custom size: <input type="text" name="custom-size" value="">
+                    </div>
+                    <textarea id="easy-struct-input" spellcheck="false" autocomplete="false"></textarea>
+                    <div class="background-settings">
+                        <div style="width: 97px;margin: auto;">
+                            <button onmousedown="solveAndFormat()">Generate</button>
+                        </div>
+                    </div>
+                    <textarea id="easy-struct-output" readonly spellcheck="false" autocomplete="false"></textarea>
+                </div>
+            </div>
+        </div>
     </main>
 
     <footer>
