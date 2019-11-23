@@ -3,11 +3,35 @@ A simple tool made for reverse engineers that automatically calculates the corre
 
 ## Features
 Easy Input<br />
-Auto aligning comments
+Auto aligning comments<br />
+Supports arrays<br />
+64 or 32-bit option<br />
+Alerts for: typos and errors
+
+## Example Input
+32-Bit, Custom name: centity_s, Custom size: 0x204
+```cpp
+	int eventParam 0x164
+	short CurrentVaild 0x0
+	char Alive 0x2
+	Vector3 origin 0x18
+	int flags2 0x38
+	int number 0xDC
+	int eType 0xE0
+	char PlayerPose 0xE4
+	int IsAlive 0x1DC
+	char Shooting 0xE5
+	char Zoomed 0xE6
+	unsigned int item 0x16C
+	char event[4] 0x17C
+	int eventParams 0x19C
+	Vector3 angles 0x24
+	short WeaponNum 0x1A8
+```
 
 ## Example Output
-```c++
-struct
+```cpp
+struct centity_s
 {
 	short CurrentVaild;		//0x0000
 	char Alive;			//0x0002
@@ -18,7 +42,7 @@ struct
 	int flags2;			//0x0038
 	char _0x003C[0xA0];		//0x003C
 	int number;			//0x00DC 
-	entityType_t eType;		//0x00E0  
+	int eType;			//0x00E0  
 	char PlayerPose;		//0x00E4  
 	char Shooting;			//0x00E5  
 	char Zoomed;			//0x00E6  
@@ -36,5 +60,5 @@ struct
 	int IsAlive;			//0x01DC  
 	char _0x01E0[0x24];		//0x01E0
 	//size: 0x204
-}centity_s;
+};
 ```
