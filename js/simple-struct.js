@@ -9,7 +9,8 @@
 
 
 // -- Global scope (doc vars)
-var paddingChars = 4, bit32 = true;
+var paddingChars = 4, bit32 = true
+var identifierList = []
 
 // -- Classes
 class Conversion
@@ -111,6 +112,53 @@ function arraySizeMultiplier(member)
             alert("Typo: missing '[' on line " + member.line)
     }
     else return 1
+}
+
+class Datatype
+{
+    constructor(name, size)
+    {
+        this.name = name
+        this.size = size
+    }
+}
+
+class TypeSpecifier
+{
+    constructor(name)
+    {
+        this.name = name
+    }
+}
+
+// They're all syntaxes of cpp, and inherits from interface Syntax
+// type specifier: unsigned, const, etc ...
+// data type: bool, int, char, etc ...
+
+
+function initIdentifierList()
+{
+    identifierList.push(new Datatype("Vector3", 12))
+    identifierList.push(new Datatype("Vector2", 8))
+    identifierList.push(new Datatype("bool", 4))
+    identifierList.push(new Datatype("int", 4))
+    identifierList.push(new Datatype("__int32", 4))
+    identifierList.push(new Datatype("void", 4))
+    identifierList.push(new Datatype("char", 1))
+    identifierList.push(new Datatype("short", 2))
+    identifierList.push(new Datatype("double", 8))
+}
+
+function updateSyntaxHighlighting()
+{
+    // get the text from textarea
+    var text = document.getElementById("easy-struct-input").value
+    // loop through the "identifierList" and compare the it to the textarea, if a match is found find the index and highlight it.
+    index = text.indexOf("int")
+    if (index != -1)
+        text.substring(index, index+3)
+
+
 }
 
 function getDatatypeSize(member)  //Hard coded datatype sizes, (get from another site perhaps?)
