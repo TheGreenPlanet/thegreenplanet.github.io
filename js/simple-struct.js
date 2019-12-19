@@ -8,11 +8,18 @@
 //2. Implement 'identifier' function for coloring known datatypes
 
 
-// -- Global scope (doc vars)
+// Global scope (doc vars)
 var paddingChars = 4, bit32 = true
-var identifierList = []
+var datatypeList = []
 
-// -- Classes
+
+window.onload = () => 
+{
+    // update the datatypeList when switching between 32 and 64-bit
+    initDatatypeList()
+}
+
+// Classes
 class Conversion
 {
     constructor (value)
@@ -31,12 +38,13 @@ class Conversion
 
 class Member
 {
-    constructor (datatype, name, pos, line)
+    constructor (datatype, name, pos, line = 0, specifier = "")
     {
         this.datatype = new Conversion(datatype)
         this.name = new Conversion(name)
         this.pos = new Conversion(pos)
         this.line = line
+        this.specifier = new Conversion(specifier)
     }
 
     stringForm()
@@ -48,7 +56,7 @@ class Member
 //let member = new Member(a, b, c)
 //member.pos.ToInt()
 
-// -- Convertions
+// Convertions
 function intToHexStr(int)
 {
     return ('0000' + int.toString(16).toUpperCase()).slice(-4)
@@ -60,7 +68,7 @@ function hexToInt(hex)
 }
 /////////////////////////////////
 
-// -- returns a big string format without \n
+// returns a big string format without \n
 function getTextLines() //returns a big string format without \n
 {
     var text = document.getElementById("easy-struct-input")
@@ -123,37 +131,44 @@ class Datatype
     }
 }
 
-class TypeSpecifier
+
+// the dataTypeList will replace the "getDatatypeSize" function
+// TODO: change the sizes based on what bit were on
+function initDatatypeList()
 {
-    constructor(name)
-    {
-        this.name = name
-    }
+    // exception
+    datatypeList.push(new Datatype("zero", 0))
+    
+    // vectors
+    datatypeList.push(new Datatype("Vector3", 12))
+    datatypeList.push(new Datatype("Vector2", 8))
+    datatypeList.push(new Datatype("Vec3", 12))
+    datatypeList.push(new Datatype("Vec2", 8))
+
+    // cpp datatypes
+    datatypeList.push(new Datatype("bool", 4))
+    datatypeList.push(new Datatype("int", 4))
+    datatypeList.push(new Datatype("__int32", 4))
+    datatypeList.push(new Datatype("__int64", 8))
+    datatypeList.push(new Datatype("void", 4))
+    datatypeList.push(new Datatype("char", 1))
+    datatypeList.push(new Datatype("short", 2))
+    datatypeList.push(new Datatype("double", 8))
+    
+    // Windows.h
+    datatypeList.push(new Datatype("DWORD", 4))
+    datatypeList.push(new Datatype("QWORD", 8))
+    datatypeList.push(new Datatype("BYTE", 1))
+
+
 }
 
-// They're all syntaxes of cpp, and inherits from interface Syntax
-// type specifier: unsigned, const, etc ...
-// data type: bool, int, char, etc ...
-
-
-function initIdentifierList()
-{
-    identifierList.push(new Datatype("Vector3", 12))
-    identifierList.push(new Datatype("Vector2", 8))
-    identifierList.push(new Datatype("bool", 4))
-    identifierList.push(new Datatype("int", 4))
-    identifierList.push(new Datatype("__int32", 4))
-    identifierList.push(new Datatype("void", 4))
-    identifierList.push(new Datatype("char", 1))
-    identifierList.push(new Datatype("short", 2))
-    identifierList.push(new Datatype("double", 8))
-}
 
 function updateSyntaxHighlighting()
 {
     // get the text from textarea
     var text = document.getElementById("easy-struct-input").value
-    // loop through the "identifierList" and compare the it to the textarea, if a match is found find the index and highlight it.
+    // loop through the "datatypeList" and compare the it to the textarea, if a match is found find the index and highlight it.
     index = text.indexOf("int")
     if (index != -1)
         text.substring(index, index+3)
@@ -206,23 +221,79 @@ function getDatatypeSize(member)  //Hard coded datatype sizes, (get from another
     }
 }
 
-// -- returns a sorted array with all elements
-function sortMembers()   //returns a sorted array with all elements 
+// returns a Member
+function getData(l, line)
+{
+    datatypeIndex  = 0
+    nameIndex      = 0
+    posIndex       = 0
+    specifierIndex =0
+
+    datatype      = ""
+    name          = ""
+    pos           = ""
+    specifier     = ""
+
+    // datatype
+    for (i = 0; i < datatypeList.length; i++)
+    {
+        datatypeIndex = line.search(datatypeList[i].name)
+        if (datatypeIndex != -1)
+        {
+            datatype = datatypeList[i].name
+            break;
+        }
+    }
+    if (!datatype)
+        alert("Incorrect datatype format: " + parseInt(l + 1))
+
+    // position
+    posIndex = line.lastIndexOf("0x")
+
+    if (posIndex == -1)
+        alert("Incorrect position format: " + parseInt(l + 1))
+
+    // get substring between posIndex and "\n"
+    pos = line.substring(posIndex, line.length)
+    // trim whitespaces
+    pos = pos.trim()
+
+    // name
+    datatypeEndIndex = datatypeIndex + datatype.length
+    
+    name = line.substring(datatypeEndIndex, posIndex)
+    // trim whitespaces
+    name = name.trim()
+
+    // specifier / extra
+    if (datatypeIndex > 0)
+    {
+        specifier = line.substring(0, datatypeIndex)
+        specifier = specifier.trim()
+    }
+
+    return new Member(datatype, name, pos, l+1, specifier)
+}
+
+// returns a sorted array with all elements
+function sortMembers()   // returns a sorted array with all elements 
 {
     var members = []
-    for (var i = 0; i < getTextLines().length; i++) //iterate through the text lines and extract data
+    for (var i = 0; i < getTextLines().length; i++) // iterate through the text lines and extract data
     {
-            var str_elements = getTextLines()[i].split(" ", 3)
-            if (str_elements.length == 3)   //make sure that there are 3 elements ( datatype :: name :: size )
-            {
-                let member = new Member(str_elements[0], str_elements[1], str_elements[2], i+1) //push the str elements as an array, into the sorted Elements list ( { [ datatype, name, size ], ...} )
-                members.push(member)
-            }
-            else
-            {
-                alert("Incorrect format: " + parseInt(i + 1))
-                break;
-            }
+        line = getTextLines()[i]
+            // datatype     get the datatype by searching for its index
+            // name         will always be a space between the datatype index, aswell as between pos
+            // pos          will always be the last 0x
+            let member = getData(i, line)
+            //let member = new Member(datatype, name, pos, i+1) //push the str elements as an array, into the sorted Elements list ( { [ datatype, name, size ], ...} )
+            members.push(member)
+            // }
+            // else
+            // {
+            //     alert("Incorrect format: " + parseInt(i + 1))
+            //     break;
+            // }
     }
     return members.sort(function(a, b){return a.pos.ToInt() - b.pos.ToInt()})
 }
@@ -260,7 +331,7 @@ function solveAndFormat()
     {
         member = sorted[i]    //(performance) instead of calling sortmember every iteration
 
-        buildStr += "    " + member.datatype.value + " " + member.name.value + ";" + " //0x" + intToHexStr(member.pos.ToInt()) + "\n"//draw current member
+        buildStr += "    " + member.specifier.value + " " + member.datatype.value + " " + member.name.value + ";" + " //0x" + intToHexStr(member.pos.ToInt()) + "\n"//draw current member
 
         //draw and calc padding
         if (i+1 < sorted.length)
@@ -296,7 +367,7 @@ function longestStringForLoop(arr) {
     return word;
   }
 
-// -- invoked after "solveAndFormat()" to get longest length of a mem, replace "//0x" with right amount of spacing
+// invoked after "solveAndFormat()" to get longest length of a mem, replace "//0x" with right amount of spacing
 function structureComments(builtStr)
 {
     var longestChars = 0, structure = ""
