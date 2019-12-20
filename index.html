@@ -23,10 +23,10 @@
                 <div class="code-container">
                     <div class="background-settings">
                         <button id="button-bit-switch" onmousedown="toggle(this, '32-bit', '64-bit')">32-bit</button>
-                        Struct name: <input type="text" name="struct-name" value="">
-                        Custom size: <input type="text" name="custom-size" value="">
+                        Struct name: <input type="text" name="struct-name" value="" spellcheck="false">
+                        Custom size: <input type="text" name="custom-size" value="" spellcheck="false">
                     </div>
-                    <textarea id="easy-struct-input" spellcheck="false" autocomplete="false"></textarea>
+                    <textarea id="easy-struct-input" spellcheck="false" autocomplete="false" onkeyup="updateSyntaxHighlighting()"></textarea>
                     <div class="background-settings">
                         <div style="width: 97px;margin: auto;">
                             <button onmousedown="solveAndFormat()">Generate</button>

@@ -163,62 +163,86 @@ function initDatatypeList()
 
 }
 
+function insert(idx, rem, str)
+{
+    return this.slice(0, idx) + str + this.slice(idx + Math.abs(rem));
+}
 
+// search through all the textarea and finds all the indexes of the identifiers 
 function updateSyntaxHighlighting()
 {
     // get the text from textarea
-    var text = document.getElementById("easy-struct-input").value
-    // loop through the "datatypeList" and compare the it to the textarea, if a match is found find the index and highlight it.
-    index = text.indexOf("int")
-    if (index != -1)
-        text.substring(index, index+3)
+    var input = document.getElementById("easy-struct-input")
+    currInnerHTML = input.innerHTML
 
+    textarea = input.text
+    // loop through the "datatypeList" and compare the it to the textarea, if a match is found find the index and highlight it.
+    index = textarea.indexOf("int")
+    if (index != -1)
+    {
+        // unsigned int value 0xC
+        // unsigned <span style="color: green">int</span> value 0xC
+        datatype = textarea.substring(index, index+3)
+        // insert the style span inside the line string
+        input.innerHTML = "<span style=\"color: green\">" +  
+    }
 
 }
 
-function getDatatypeSize(member)  //Hard coded datatype sizes, (get from another site perhaps?)
+function getDatatypeSize(member)
 {
-    datatype = member.datatype.value
+    for (i = 0; i < datatypeList.length; i++)
+    {
+        if (member.datatype.value == datatypeList[i].name)
+        {
+            if (member.name.value.includes("*"))
+                return is32Bit() ? 4 : 8
 
-    if (datatype == "zero")
-        return 0
-
-    if (datatype.includes("*"))
-        if (is32Bit())
-            return 4
-        else
-            return 8
-
-    switch (datatype) {
-        // Vectors
-        case "Vector3":
-            return 12
+            return datatypeList[i].size
             break
-        case "Vector2":
-            return 8
-            break
-        case "bool":
-        // integers
-        case "int":
-        case "__int32":
-        case "unsigned int":
-        case "long":
-        case "unsigned long":
-        // floats
-        case "float":
-        case "unsigned float":
-        // void
-        case "void":
-            return 4
-            break
-        case "char":
-            return 1
-            break
-        default:
-            alert("Unknown datatype: " + datatype + " on line " + member.line)
-            return 0
-            break
+        }    
     }
+    return 0
+
+    // if (datatype == "zero")
+    //     return 0
+
+    // if (datatype.includes("*"))
+    //     if (is32Bit())
+    //         return 4
+    //     else
+    //         return 8
+
+    // switch (datatype) {
+    //     // Vectors
+    //     case "Vector3":
+    //         return 12
+    //         break
+    //     case "Vector2":
+    //         return 8
+    //         break
+    //     case "bool":
+    //     // integers
+    //     case "int":
+    //     case "__int32":
+    //     case "unsigned int":
+    //     case "long":
+    //     case "unsigned long":
+    //     // floats
+    //     case "float":
+    //     case "unsigned float":
+    //     // void
+    //     case "void":
+    //         return 4
+    //         break
+    //     case "char":
+    //         return 1
+    //         break
+    //     default:
+            
+    //         return 0
+    //         break
+    // }
 }
 
 // returns a Member
@@ -245,13 +269,13 @@ function getData(l, line)
         }
     }
     if (!datatype)
-        alert("Incorrect datatype format: " + parseInt(l + 1))
+        alert("Unknown datatype on line " + parseInt(l + 1))
 
     // position
     posIndex = line.lastIndexOf("0x")
 
     if (posIndex == -1)
-        alert("Incorrect position format: " + parseInt(l + 1))
+        alert("Incorrect position format on line " + parseInt(l + 1))
 
     // get substring between posIndex and "\n"
     pos = line.substring(posIndex, line.length)
@@ -331,9 +355,14 @@ function solveAndFormat()
     {
         member = sorted[i]    //(performance) instead of calling sortmember every iteration
 
-        buildStr += "    " + member.specifier.value + " " + member.datatype.value + " " + member.name.value + ";" + " //0x" + intToHexStr(member.pos.ToInt()) + "\n"//draw current member
+        // draw current member
+        if (member.specifier.value)
+            buildStr += "    " + member.specifier.value + " " + member.datatype.value + " " + member.name.value + ";" + " //0x" + intToHexStr(member.pos.ToInt()) + "\n"
+        else
+            buildStr += "    " + member.datatype.value + " " + member.name.value + ";" + " //0x" + intToHexStr(member.pos.ToInt()) + "\n"
 
-        //draw and calc padding
+
+        // draw and calc padding
         if (i+1 < sorted.length)
             buildStr += addPadding(member, sorted[i+1])
         else
@@ -357,15 +386,16 @@ function solveAndFormat()
     document.getElementById("easy-struct-output").innerHTML = buildStr;
 }
 
-function longestStringForLoop(arr) {
+function longestStringForLoop(arr) 
+{
     let word = "";
-    for (let i = 0; i < arr.length; i++) {
-      if (word.length < arr[i].length) {
-        word = arr[i];
-      }
+    for (let i = 0; i < arr.length; i++) 
+    {
+        if (word.length < arr[i].length) 
+            word = arr[i];
     }
     return word;
-  }
+}
 
 // invoked after "solveAndFormat()" to get longest length of a mem, replace "//0x" with right amount of spacing
 function structureComments(builtStr)
