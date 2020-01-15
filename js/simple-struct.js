@@ -38,11 +38,12 @@ class Conversion
 
 class Member
 {
-    constructor (datatype, name, pos, line = 0, specifier = "")
+    constructor (datatype, name, pos, size, line = 0, specifier = "")
     {
         this.datatype = new Conversion(datatype)
         this.name = new Conversion(name)
         this.pos = new Conversion(pos)
+        this.size = new Conversion(size)
         this.line = line
         this.specifier = new Conversion(specifier)
     }
@@ -160,6 +161,8 @@ function initDatatypeList()
     datatypeList.push(new Datatype("QWORD", 8))
     datatypeList.push(new Datatype("BYTE", 1))
 
+    // pointer
+    // datatypeList.push(new Datatype("*", is32Bit() ? 4 : 8));
 
 }
 
@@ -171,79 +174,40 @@ function insert(idx, rem, str)
 // search through all the textarea and finds all the indexes of the identifiers 
 function updateSyntaxHighlighting()
 {
-    // get the text from textarea
-    var input = document.getElementById("easy-struct-input")
-    currInnerHTML = input.innerHTML
+    // // get the text from textarea
+    // var input = document.getElementById("easy-struct-input")
+    // currInnerHTML = input.innerHTML
 
-    textarea = input.text
-    // loop through the "datatypeList" and compare the it to the textarea, if a match is found find the index and highlight it.
-    index = textarea.indexOf("int")
-    if (index != -1)
-    {
-        // unsigned int value 0xC
-        // unsigned <span style="color: green">int</span> value 0xC
-        datatype = textarea.substring(index, index+3)
-        // insert the style span inside the line string
-        input.innerHTML = "<span style=\"color: green\">" +  
-    }
-
-}
-
-function getDatatypeSize(member)
-{
-    for (i = 0; i < datatypeList.length; i++)
-    {
-        if (member.datatype.value == datatypeList[i].name)
-        {
-            if (member.name.value.includes("*"))
-                return is32Bit() ? 4 : 8
-
-            return datatypeList[i].size
-            break
-        }    
-    }
-    return 0
-
-    // if (datatype == "zero")
-    //     return 0
-
-    // if (datatype.includes("*"))
-    //     if (is32Bit())
-    //         return 4
-    //     else
-    //         return 8
-
-    // switch (datatype) {
-    //     // Vectors
-    //     case "Vector3":
-    //         return 12
-    //         break
-    //     case "Vector2":
-    //         return 8
-    //         break
-    //     case "bool":
-    //     // integers
-    //     case "int":
-    //     case "__int32":
-    //     case "unsigned int":
-    //     case "long":
-    //     case "unsigned long":
-    //     // floats
-    //     case "float":
-    //     case "unsigned float":
-    //     // void
-    //     case "void":
-    //         return 4
-    //         break
-    //     case "char":
-    //         return 1
-    //         break
-    //     default:
-            
-    //         return 0
-    //         break
+    // textarea = input.text
+    // // loop through the "datatypeList" and compare the it to the textarea, if a match is found find the index and highlight it.
+    // index = textarea.indexOf("int")
+    // if (index != -1)
+    // {
+    //     // unsigned int value 0xC
+    //     // unsigned <span style="color: green">int</span> value 0xC
+    //     datatype = textarea.substring(index, index+3)
+    //     // insert the style span inside the line string
+    //     input.innerHTML.insert(index, 3, "<span style=\"color: green\">")
+    //     input.innerHTML = "<span style=\"color: green\">" +  
     // }
+
 }
+
+// function getDatatypeSize(member)
+// {
+//     for (i = 0; i < datatypeList.length; i++)
+//     {
+//         if (member.datatype.value == datatypeList[i].name)
+//         {
+//             if (member.name.value.includes("*"))
+//                 return is32Bit() ? 4 : 8
+
+//             return datatypeList[i].size
+//             break
+//         }    
+//     }
+//     return 0
+// }
 
 // returns a Member
 function getData(l, line)
@@ -251,23 +215,35 @@ function getData(l, line)
     datatypeIndex  = 0
     nameIndex      = 0
     posIndex       = 0
-    specifierIndex =0
+    specifierIndex = 0
+
+    size           = 0
 
     datatype      = ""
     name          = ""
     pos           = ""
     specifier     = ""
 
-    // datatype
+    // datatype + size
     for (i = 0; i < datatypeList.length; i++)
     {
         datatypeIndex = line.search(datatypeList[i].name)
         if (datatypeIndex != -1)
         {
             datatype = datatypeList[i].name
+            size     = datatypeList[i].size
             break;
         }
+        // pointer exception
+        datatypeIndex = line.indexOf("*")
+        if (datatypeIndex != -1)
+        {
+            datatype = "*"
+            size     = is32Bit() ? 4 : 8
+            break
+        }
     }
+
     if (!datatype)
         alert("Unknown datatype on line " + parseInt(l + 1))
 
@@ -290,13 +266,14 @@ function getData(l, line)
     name = name.trim()
 
     // specifier / extra
+    // everything behind the datatypeIndex will count as a specifier
     if (datatypeIndex > 0)
     {
         specifier = line.substring(0, datatypeIndex)
         specifier = specifier.trim()
     }
 
-    return new Member(datatype, name, pos, l+1, specifier)
+    return new Member(datatype, name, pos, size,  l+1, specifier)
 }
 
 // returns a sorted array with all elements
@@ -324,7 +301,7 @@ function sortMembers()   // returns a sorted array with all elements
 
 function addPadding(currMem, nextMem)
 {
-    var icurrSize = getDatatypeSize(currMem), icurrPos = currMem.pos.ToInt(), inextPos = nextMem.pos.ToInt()
+    var icurrSize = currMem.size.value, icurrPos = currMem.pos.ToInt(), inextPos = nextMem.pos.ToInt()
 
     arrayMultiplier = arraySizeMultiplier(currMem)
 
@@ -349,7 +326,7 @@ function solveAndFormat()
     buildStr += "\nstruct " + getStructName() + "\n{\n"
 
     if (sorted[0].pos.ToInt() != 0)     // if the position of the first member isnt zero, we'll need some dummy padding
-        buildStr += addPadding(new Member("zero", "first", "0x0000"), sorted[0])
+        buildStr += addPadding(new Member("zero", "first", 0, "0x0000"), sorted[0])
 
     for (var i = 0; i < sorted.length; i++)
     {
@@ -370,7 +347,7 @@ function solveAndFormat()
             if (getCustomSizeInput() === "")
             {
                 arrayMultiplier = arraySizeMultiplier(member)
-                buildStr += "    //size: 0x" + intToHexStr(member.pos.ToInt() + getDatatypeSize(member) * arrayMultiplier) + "\n"
+                buildStr += "    //size: 0x" + intToHexStr(member.pos.ToInt() + member.size.value * arrayMultiplier) + "\n"
             }
             else
             {

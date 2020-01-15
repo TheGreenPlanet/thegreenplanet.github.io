@@ -51,10 +51,15 @@ h4{
     color: #d8d8d8;
 }
 
+/* .code-container
+{
+    overflow: hidden;
+} */
+
 .code-container textarea{
     outline: none;
     resize: none;
-    overflow: hidden;
+    overflow-y: scroll;
     width: 100%;
     height: 300px;
     border: none;
@@ -94,6 +99,11 @@ h4{
 
 .code-container button:hover{
     background: #ca7900;
+}
+
+::-webkit-scrollbar {
+    width: 0px;  /* Remove scrollbar space */
+    background: transparent;  /* Optional: just make scrollbar invisible */
 }
 /*
 .background{
