@@ -5,6 +5,9 @@ A simple tool made for reverse engineers that automatically calculates the corre
 Easy Input<br />
 Auto aligning comments<br />
 Supports arrays<br />
+Specifiers<br />
+Class and struct declaration<br />
+Pointers<br />
 64 or 32-bit option<br />
 Alerts for: typos and errors
 
@@ -60,5 +63,21 @@ struct centity_s
 	int IsAlive;			//0x01DC  
 	char _0x01E0[0x24];		//0x01E0
 	//size: 0x204
+};
+```
+
+## Advanced Input
+32-Bit, Custom name: ClientEntity
+```cpp
+	class ClientPlayer *player[18] 0x10
+```
+
+## Advanced Output
+```cpp
+struct ClientEntity
+{
+    char _0x0000[0x10];                 //0x0000
+    class ClientPlayer * player[18];    //0x0010
+    //size: 0x0058
 };
 ```
