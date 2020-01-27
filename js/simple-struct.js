@@ -147,6 +147,7 @@ function initDatatypeList()
     datatypeList.push(new Datatype("Vec2", 8))
 
     // cpp datatypes
+    datatypeList.push(new Datatype("float", 4))
     datatypeList.push(new Datatype("bool", 4))
     datatypeList.push(new Datatype("int", 4))
     datatypeList.push(new Datatype("__int32", 4))
